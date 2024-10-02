@@ -81,14 +81,12 @@ function Homepage() {
           </div>
         </div>
       </div>
-
       {/* Pagina 4 */}
       <div className="h-screen w-screen relative flex flex-col items-center justify-center">
         <img 
           src="/stadionn.png" 
           alt="Imagine Fundal" 
           className="absolute inset-0 w-full h-full object-cover z-0"
-          
         />
       <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-90 z-2"></div>   
      <div className="absolute inset-0 bg-gradient-to-b from-black to-transparent opacity-90 z-2"></div>
