@@ -7,7 +7,7 @@ function Header() {
 
   return (
     <div className="fixed top-0 left-0 w-full bg-transparent z-30 flex justify-between items-center px-8 py-4">
-      <div className="text-white text-2xl font-bold">AXUL <span className="text-yellow-500">CENTRAL</span></div>
+      <div className="text-white text-2xl font-bold"> <span className="text-yellow-500">TRIVELA</span></div>
       <button
         className="text-white text-3xl focus:outline-none"
         onClick={() => setMenuOpen(true)}
