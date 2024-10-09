@@ -26,26 +26,20 @@ const Joc1 = () => {
         try {
           const querySnapshot = await getDocs(collection(db, 'Top10Colegi'));
           const playersData = querySnapshot.docs.map(doc => doc.data());
-
-          const messiPlayers = playersData.find(player => player.name === 'Messi').Colegi;
-          const ronaldoPlayers = playersData.find(player => player.name === 'Ronaldo').Colegi;
-          const combinedPlayers = [...messiPlayers, ...ronaldoPlayers];
-
-          const isMessi = Math.random() > 0.5;
-          if (isMessi) {
-            setCurrentPlayer('Messi');
-            setCurrentTeammates(messiPlayers);
-          } else {
-            setCurrentPlayer('Ronaldo');
-            setCurrentTeammates(ronaldoPlayers);
-          }
-
+          const allPlayersData = playersData.map(player => ({
+            name: player.name,
+            teammates: player.colegi
+          }));
+          const randomIndex = Math.floor(Math.random() * allPlayersData.length);
+          const selectedPlayer = allPlayersData[randomIndex];
+          setCurrentPlayer(selectedPlayer.name);
+          setCurrentTeammates(selectedPlayer.teammates);
+          const combinedPlayers = allPlayersData.flatMap(player => player.teammates);
           setAllPlayers(combinedPlayers);
         } catch (error) {
-          console.error('Error fetching players: ', error);
+          console.error('Nu s-au găsit jucatori: ', error);
         }
       };
-
       fetchPlayers();
     }
     window.scrollTo(0, 0);
@@ -53,68 +47,51 @@ const Joc1 = () => {
 
   const handleGuess = (selectedOption) => {
     if (gameOver || isAnimating) return;
-  
     const guess = selectedOption.value;
-  
     if (correctGuesses.includes(guess)) {
       setMessage(`Ai selectat deja ${guess}.`);
       return;
     }
-
     const correctMonths = ['Ianuarie', 'Februarie', 'Martie', 'Aprilie', 'Mai'];
-  const isCorrect = recruiterMode
-    ? correctMonths.includes(guess)
-    : currentTeammates.includes(guess);
-
-  if (isCorrect) {
+    const isCorrect = recruiterMode
+      ? correctMonths.includes(guess)
+      : currentTeammates.includes(guess);
+   
     const index = recruiterMode
       ? months.indexOf(guess)
       : currentTeammates.indexOf(guess);
 
-    animateHighlight(index, guess, true);
-    return;  
-  }
+    animateHighlight(index, guess, isCorrect);
 
-  const index = recruiterMode
-    ? months.indexOf(guess)
-    : allPlayers.indexOf(guess);
+    if (!isCorrect && recruiterMode) {
+      return;
+    }
 
-  animateHighlight(index, guess, false);
-  if (recruiterMode) {
-    setMessage(`${guess} nu se află în primele 5 luni!`);
-  }
-
-  setGuess('');
-  setFilteredPlayers([]);
+    setGuess('');
+    setFilteredPlayers([]);
 };
 
 const animateHighlight = (index, guess, isCorrect) => {
   let delay = 0;
   setIsAnimating(true);
-
   const itemsToHighlight = recruiterMode ? months.slice(0, 5) : currentTeammates;
-
   for (let i = itemsToHighlight.length - 1; i >= 0; i--) {
     if (correctGuesses.includes(itemsToHighlight[i])) {
       continue;
     }
-
     setTimeout(() => setHighlightIndex(i), delay * 500);
     delay++;
-
     if (i === index && isCorrect) {
       setTimeout(() => {
         setHighlightIndex(null);
         setCorrectGuesses([...correctGuesses, guess]);
         setMessage(`Corect! ${guess} este corect.`);
         checkAllGuesses();  
-
         if (recruiterMode) {
           calculatePointsForRecruiter(guess);  
         } else {
           calculatePoints(guess);   
         }
-
         setIsAnimating(false);
       }, delay * 500);
       return;
@@ -124,9 +101,10 @@ const animateHighlight = (index, guess, isCorrect) => {
   setTimeout(() => {
     setHighlightIndex(null);
     setLives(lives - 1);
-
     if (!isCorrect) {
-      setMessage(`Greșit! ${guess} nu este corect.`);
+      setMessage(recruiterMode
+        ? `${guess} nu se află în primele 5 luni!`
+        : `Greșit! ${guess} nu se află printre colegi.`);
     }
 
     if (lives - 1 === 0) {
@@ -135,7 +113,6 @@ const animateHighlight = (index, guess, isCorrect) => {
         setMessage(`Joc terminat! Ai obținut ${points} puncte.`);
       }, 2000);
     }
-
     setIsAnimating(false);
   }, delay * 500);
 };
@@ -151,24 +128,23 @@ const animateHighlight = (index, guess, isCorrect) => {
     setSelectedMonths([]);
   
     if (!recruiterMode) {
-      const isMessi = Math.random() > 0.5;
-      if (isMessi) {
-        setCurrentPlayer('Messi');
-        setCurrentTeammates(allPlayers.slice(0, 10));
-      } else {
-        setCurrentPlayer('Ronaldo');
-        setCurrentTeammates(allPlayers.slice(10));
-      }
+      const randomIndex = Math.floor(Math.random() * allPlayers.length / 10); 
+      const selectedPlayer = allPlayers[randomIndex];
+      setCurrentPlayer(selectedPlayer.name);
+      setCurrentTeammates(selectedPlayer.teammates);
     }
-  };
+};
   
   const handleInputChange = (inputValue) => {
     setGuess(inputValue);
     if (inputValue) {
       const filtered = recruiterMode
         ? months.filter(month => month.toLowerCase().startsWith(inputValue.toLowerCase()))
-        : allPlayers.filter(player => player.toLowerCase().startsWith(inputValue.toLowerCase()));
-      setFilteredPlayers(filtered.map(item => ({ value: item, label: item })));
+        : allPlayers.filter(player => {
+          const playerNameParts = player.toLowerCase().split(' ');
+          return playerNameParts.some(part => part.startsWith(inputValue.toLowerCase()));
+        });
+    setFilteredPlayers(filtered.map(item => ({ value: item, label: item })));
     } else {
       setFilteredPlayers([]);
     }
@@ -188,7 +164,7 @@ const animateHighlight = (index, guess, isCorrect) => {
       setPoints(prevPoints => {
         const newPoints = prevPoints + 10; 
         if (newPoints >= 100) {
-          setMessage('Felicitări! Ai obținut 100 sau mai multe puncte!');
+          setMessage('Felicitări! Ai găsit toți jucătorii!');
         }
         return newPoints;
       });
@@ -199,16 +175,19 @@ const animateHighlight = (index, guess, isCorrect) => {
     setPoints(prevPoints => {
       const newPoints = prevPoints + 10;  
       if (newPoints >= 50) {
-        setMessage('Felicitări! Ai obținut 50 sau mai multe puncte!');
+        setMessage('Felicitări! Ai obținut 50 de puncte!');
       }
       return newPoints;
     });
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-black p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-black p-4">
+      <div className="mb-4 mt-20">
+        <h1 className="text-4xl text-white font-bold">Top <span className="text-yellow-500 font-bold">10</span></h1>
+      </div>
       <button
-        className="px-4 py-2 mb-4 bg-blue-500 text-white rounded"
+        className="px-4 py-2 mb-4 bg-blue-900 text-white rounded"
         onClick={() => {
           resetGame();  
           setRecruiterMode(!recruiterMode);
@@ -221,12 +200,12 @@ const animateHighlight = (index, guess, isCorrect) => {
         <h1 className="text-4xl mb-8 text-white">Care sunt primele 5 luni ale anului?</h1>
       ) : (
         currentPlayer && (
-          <h1 className="text-4xl mb-8 text-white">Ghicește colegii de echipă ai lui {currentPlayer}</h1>
+          <h1 className="text-xl mb-4 text-white">Top 10 colegi ai lui <span className="text-yellow-500 font-bold">{currentPlayer}</span> după numărul de meciuri împreună</h1>
         )
       )}
 
 <div className="flex flex-col items-center mb-8">
-  {(recruiterMode ? months.slice(0, 5) : currentTeammates).map((item, index) => (
+  {(recruiterMode ? months.slice(0, 5) : (currentTeammates || [])).map((item, index) => (
     <div
       key={index}
       className={`w-64 h-8 flex items-center justify-center border-2 mb-2 
@@ -245,7 +224,7 @@ const animateHighlight = (index, guess, isCorrect) => {
     onChange={handleGuess}
     value={guess ? { value: guess, label: guess } : null}
     isDisabled={gameOver}
-    placeholder="Ghicire..."
+    placeholder="Ghicește..."
     styles={{
       menu: (provided) => ({
         ...provided,
@@ -278,6 +257,19 @@ const animateHighlight = (index, guess, isCorrect) => {
 
       <div className="text-xl text-white mb-4">Vieți rămase: {lives}</div>
       <div className="text-xl text-white">Puncte: {points}</div>
+
+      <div className="flex justify-around mt-8 mb-24">
+      <div className="w-1/3 bg-white rounded shadow-lg p-4 mt-24">
+        <img src="/romania.png" alt="Joc 2" className="w-full h-auto rounded" />
+        <h2 className="text-center text-xl font-bold mt-2">JOC 2</h2>
+        <a href="/joc2" className="block text-center text-blue-500 mt-2">Începe JOC 2</a>
+      </div>
+      <div className="w-1/3 bg-white rounded shadow-lg p-4 mt-24">
+        <img src="romania.png" alt="Joc 3" className="w-full h-auto rounded" />
+        <h2 className="text-center text-xl font-bold mt-2">JOC 3</h2>
+        <a href="/joc3" className="block text-center text-blue-500 mt-2">Începe JOC 3</a>
+      </div>
+    </div>
     </div>
   );
 };
