@@ -22,28 +22,29 @@ const Joc1 = () => {
 
   useEffect(() => {
     if (!recruiterMode) {
-      const fetchPlayers = async () => {
-        try {
-          const querySnapshot = await getDocs(collection(db, 'Top10Colegi'));
-          const playersData = querySnapshot.docs.map(doc => doc.data());
-          const allPlayersData = playersData.map(player => ({
-            name: player.name,
-            teammates: player.colegi
-          }));
-          const randomIndex = Math.floor(Math.random() * allPlayersData.length);
-          const selectedPlayer = allPlayersData[randomIndex];
-          setCurrentPlayer(selectedPlayer.name);
-          setCurrentTeammates(selectedPlayer.teammates);
-          const combinedPlayers = allPlayersData.flatMap(player => player.teammates);
-          setAllPlayers(combinedPlayers);
-        } catch (error) {
-          console.error('Nu s-au găsit jucatori: ', error);
-        }
-      };
       fetchPlayers();
     }
     window.scrollTo(0, 0);
   }, [recruiterMode]);
+
+  const fetchPlayers = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'Top10Colegi'));
+      const playersData = querySnapshot.docs.map(doc => doc.data());
+      const allPlayersData = playersData.map(player => ({
+        name: player.name,
+        teammates: player.colegi
+      }));
+      const randomIndex = Math.floor(Math.random() * allPlayersData.length);
+      const selectedPlayer = allPlayersData[randomIndex];
+      setCurrentPlayer(selectedPlayer.name);
+      setCurrentTeammates(selectedPlayer.teammates);
+      const combinedPlayers = allPlayersData.flatMap(player => player.teammates);
+      setAllPlayers(combinedPlayers);
+    } catch (error) {
+      console.error('Nu s-au găsit jucatori: ', error);
+    }
+  };
 
   const handleGuess = (selectedOption) => {
     if (gameOver || isAnimating) return;
@@ -85,7 +86,10 @@ const animateHighlight = (index, guess, isCorrect) => {
       setTimeout(() => {
         setHighlightIndex(null);
         setCorrectGuesses([...correctGuesses, guess]);
-        setMessage(`Corect! ${guess} este corect.`);
+        setMessage(
+        <>
+        <span className="text-green-500 font-bold">Corect!</span> {recruiterMode ? `${guess} se află în primele 5 luni.` : `${guess} se află în TOP 10.`}
+        </>);
         checkAllGuesses();  
         if (recruiterMode) {
           calculatePointsForRecruiter(guess);  
@@ -102,9 +106,11 @@ const animateHighlight = (index, guess, isCorrect) => {
     setHighlightIndex(null);
     setLives(lives - 1);
     if (!isCorrect) {
-      setMessage(recruiterMode
-        ? `${guess} nu se află în primele 5 luni!`
-        : `Greșit! ${guess} nu se află printre colegi.`);
+      setMessage(
+        <>
+        <span className="text-red-500 font-bold">Greșit!</span> {recruiterMode ? `${guess} nu se află în primele 5 luni!` : `${guess} nu se află în TOP 10.`}
+        </>
+      );
     }
 
     if (lives - 1 === 0) {
@@ -117,7 +123,7 @@ const animateHighlight = (index, guess, isCorrect) => {
   }, delay * 500);
 };
 
-  const resetGame = () => {
+  const resetGame = async () => {
     setGuess('');
     setCorrectGuesses([]);
     setLives(3);
@@ -126,12 +132,15 @@ const animateHighlight = (index, guess, isCorrect) => {
     setFilteredPlayers([]);
     setPoints(0);
     setSelectedMonths([]);
+
+    
   
     if (!recruiterMode) {
       const randomIndex = Math.floor(Math.random() * allPlayers.length / 10); 
       const selectedPlayer = allPlayers[randomIndex];
       setCurrentPlayer(selectedPlayer.name);
       setCurrentTeammates(selectedPlayer.teammates);
+      await fetchPlayers();
     }
 };
   
@@ -197,14 +206,14 @@ const animateHighlight = (index, guess, isCorrect) => {
       </button>
 
       {recruiterMode ? (
-        <h1 className="text-4xl mb-8 text-white">Care sunt primele 5 luni ale anului?</h1>
+        <h1 className="text-4xl mb-8 text-white">Care sunt  <span className="text-yellow-500 font-bold">primele 5 luni </span> ale anului?</h1>
       ) : (
         currentPlayer && (
           <h1 className="text-xl mb-4 text-white">Top 10 colegi ai lui <span className="text-yellow-500 font-bold">{currentPlayer}</span> după numărul de meciuri împreună</h1>
         )
       )}
 
-<div className="flex flex-col items-center mb-8">
+<div className="flex flex-col items-center mb-4">
   {(recruiterMode ? months.slice(0, 5) : (currentTeammates || [])).map((item, index) => (
     <div
       key={index}
@@ -217,7 +226,7 @@ const animateHighlight = (index, guess, isCorrect) => {
   ))}
 </div>
 
-<div className="mb-4 w-64">
+<div className="mb-4 w-64 ">
   <Select
     options={filteredPlayers}
     onInputChange={handleInputChange}
@@ -230,9 +239,14 @@ const animateHighlight = (index, guess, isCorrect) => {
         ...provided,
         width: '100%' 
       }),
-      control: (provided) => ({
+      control: (provided, state) => ({
         ...provided,
-        width: '100%'  
+        width: '100%',
+        borderColor: state.isFocused ? '#F59E0B' : provided.borderColor,  
+        boxShadow: state.isFocused ? '0 0 0 1px #F59E0B' : provided.boxShadow,  
+        '&:hover': {
+          borderColor: '#F59E0B'
+        }
       }),
       input: (provided) => ({
         ...provided,
@@ -245,29 +259,31 @@ const animateHighlight = (index, guess, isCorrect) => {
 
       {message && <div className="text-xl text-white mb-4">{message}</div>}
       {gameOver && (
-      <div className="mt-4">
-        <p className="text-white">{message}</p>
-        {correctGuesses.length === 5 && recruiterMode && (  
-          <button className="px-4 py-2 bg-orange-500 text-white rounded mt-4" onClick={resetGame}>
-            Reîncepe jocul
+          <button className="mb-2 px-4 py-2 bg-yellow-600 text-white font-bold rounded" onClick={resetGame}>
+            Reîncearcă!
           </button>
         )}
+
+      <div className="flex items-center">
+        <span className="text-xl text-white">  Vieți rămase:</span>
+        <div className="flex">
+        {[...Array(lives)].map((_, index) => (
+      <span key={index} className="text-red-500 text-sm mx-1" style={{ marginLeft: '2px', marginRight: '2px' }}>💛</span>
+    ))}
+    </div>
       </div>
-    )}
+      <div className="text-xl text-white">Puncte: <span className="text-yellow-500 font-bold">{points}</span></div>
 
-      <div className="text-xl text-white mb-4">Vieți rămase: {lives}</div>
-      <div className="text-xl text-white">Puncte: {points}</div>
-
-      <div className="flex justify-around mt-8 mb-24">
+      <div className="flex justify-around mt-16 mb-24">
       <div className="w-1/3 bg-white rounded shadow-lg p-4 mt-24">
         <img src="/romania.png" alt="Joc 2" className="w-full h-auto rounded" />
         <h2 className="text-center text-xl font-bold mt-2">JOC 2</h2>
-        <a href="/joc2" className="block text-center text-blue-500 mt-2">Începe JOC 2</a>
+        <a href="/joc2" className="block text-center text-blue-500 mt-2">Descriere</a>
       </div>
       <div className="w-1/3 bg-white rounded shadow-lg p-4 mt-24">
         <img src="romania.png" alt="Joc 3" className="w-full h-auto rounded" />
         <h2 className="text-center text-xl font-bold mt-2">JOC 3</h2>
-        <a href="/joc3" className="block text-center text-blue-500 mt-2">Începe JOC 3</a>
+        <a href="/joc3" className="block text-center text-blue-500 mt-2">Descriere</a>
       </div>
     </div>
     </div>
