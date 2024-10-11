@@ -7,7 +7,9 @@ function Header() {
 
   return (
     <div className="fixed top-0 left-0 w-full bg-transparent z-30 flex justify-between items-center px-8 py-4">
-      <div className="text-white text-2xl font-bold"> <span className="text-yellow-500">TRIVELA</span></div>
+      <a href="/" className="text-white text-2xl font-bold"> 
+      <span className="text-yellow-500">TRIVELA</span>
+      </a>
       <button
         className="text-white text-3xl focus:outline-none"
         onClick={() => setMenuOpen(true)}
@@ -19,7 +21,7 @@ function Header() {
   <div className="fixed inset-0 bg-slate-950 bg-opacity-100 z-40 flex items-center justify-center">
     <div className="absolute top-4 right-4 text-white text-3xl cursor-pointer px-5 " onClick={() => setMenuOpen(false)}>X</div>
     <ul className="text-center space-y-24">
-      {['TOP 10 COECHIPIERI <> ', 'GHICEȘTE PRIMUL 11 <> ', 'GHICEȘTE JUCĂTORUL <> ', 'CINE ESTE? <> '].map((item, index) => (
+      {['TOP 10 COLEGI <> ', 'PRIMUL 11 <> ', 'GHICEȘTE JUCĂTORUL <> ', 'CINE ESTE? <> '].map((item, index) => (
         <li
           key={index}
           className="relative text-6xl font-bold h-20" 

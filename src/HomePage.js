@@ -55,31 +55,29 @@ function Homepage() {
      <div className="absolute inset-0 bg-gradient-to-b from-black to-transparent opacity-90 z-2"></div>
         <div className="flex w-2/4 my-8 items-center justify-between z-0">
         {/* Sectiunea 1 */}
-          <Link to="/game" className="w-1/2 p-4 flex justify-center">
+          <Link to="/top10" className="w-1/2 p-4 flex justify-center">
             <img src="/deac.png" alt="Deac" className="w-full h-auto object-cover border-4 border-white cursor-pointer" />
           </Link>
           <div className="w-2/3 p-4 text-white text-lg">
-            <p className="font-bold text-5xl text-yellow-500">TOP 10 JUCĂTORI</p>
+            <p className="font-bold text-5xl text-yellow-500">TOP 10 COLEGI</p>
             <ul className="list-disc list-inside mt-4">
-            <li className="mt-2">Ghicește jucătorii alături de care a evoluat cel mai mult un fotbalist</li>
-            <li className="mt-2">Se vor lua în calcul minutele jucate</li>
-            <li className="mt-2">Nivel de dificultate: GREU</li>
+            <li className="mt-2">Ghicește jucătorii alături de care a evoluat cel mai mult un fotbalist român</li>
+            <li className="mt-2">Se vor lua în calcul numărul de meciuri jucate împreună</li>
+            <li className="mt-2">Peste 100 de jucători în baza de date</li>
             </ul>
           </div>
         </div>
         <div className="flex w-2/4 my-8 items-center justify-between z-0">
           {/* Sectiunea 2 */}
           <div className="w-2/3 p-4 text-white text-lg">
-          <p className="font-bold text-5xl text-yellow-500">a</p>
+          <p className="font-bold text-5xl text-yellow-500">PRIMUL 11</p>
             <ul className="list-disc list-inside mt-4">
-              <li className="mt-2">b</li>
-              <li className="mt-2">c</li>
-              <li className="mt-2">d</li>
+              <li className="mt-2">Ghicește primul 11 dintr-un meci istoric al naționalei României sau a unei echipe de club românești</li>
             </ul>
           </div>
-          <div className="w-1/2 p-4 flex justify-center">
+          <Link to= "/primul11" className="w-1/2 p-4 flex justify-center">
             <img src="/romania.png" alt="Echipa Romania" className="w-full h-auto object-cover border-4 border-white" />
-          </div>
+          </Link>
         </div>
       </div> 
 
@@ -98,28 +96,15 @@ function Homepage() {
             <img src="/deac.png" alt="Deac" className="w-full h-auto object-cover border-4 border-white cursor-pointer" />
           </Link>
           <div className="w-2/3 p-4 text-white text-lg">
-            <p className="font-bold text-5xl text-yellow-500">TOP 10 JUCĂTORI</p>
+            <p className="font-bold text-5xl text-yellow-500">CINE E?</p>
             <ul className="list-disc list-inside mt-4">
-            <li className="mt-2">Ghicește jucătorii alături de care a evoluat cel mai mult un fotbalist</li>
-            <li className="mt-2">Se vor lua în calcul minutele jucate</li>
-            <li className="mt-2">Nivel de dificultate: GREU</li>
+            <li className="mt-2">Ghicește jucătorul în funcție de foștii lui colegi</li>
+            <li className="mt-2">Vor fi prezentați, pe rând, 5 colegi</li>
+           
             </ul>
           </div>
         </div>
-        <div className="flex w-2/4 my-8 items-center justify-between z-0">
-          {/* Sectiunea 2 */}
-          <div className="w-2/3 p-4 text-white text-lg">
-          <p className="font-bold text-5xl text-yellow-500">a</p>
-            <ul className="list-disc list-inside mt-4">
-              <li className="mt-2">b</li>
-              <li className="mt-2">c</li>
-              <li className="mt-2">d</li>
-            </ul>
-          </div>
-          <div className="w-1/2 p-4 flex justify-center">
-            <img src="/romania.png" alt="Echipa Romania" className="w-full h-auto object-cover border-4 border-white" />
-          </div>
-        </div>
+        
       </div> 
      
     </div>

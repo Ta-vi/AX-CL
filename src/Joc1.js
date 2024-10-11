@@ -274,11 +274,11 @@ const animateHighlight = (index, guess, isCorrect) => {
       </div>
       <div className="text-xl text-white">Puncte: <span className="text-yellow-500 font-bold">{points}</span></div>
 
-      <div className="flex justify-around mt-16 mb-24">
+      <div className="flex justify-around mt-24 mb-24">
       <div className="w-1/3 bg-white rounded shadow-lg p-4 mt-24">
         <img src="/romania.png" alt="Joc 2" className="w-full h-auto rounded" />
-        <h2 className="text-center text-xl font-bold mt-2">JOC 2</h2>
-        <a href="/joc2" className="block text-center text-blue-500 mt-2">Descriere</a>
+        <h2 className="text-center text-xl font-bold mt-2">PRIMUL 11</h2>
+        <a href="/joc2" className="block text-center text-blue-500 mt-2">Ghicește primul 11 dintr-un meci istoric al naționalei României sau a unei echipe de club românești</a>
       </div>
       <div className="w-1/3 bg-white rounded shadow-lg p-4 mt-24">
         <img src="romania.png" alt="Joc 3" className="w-full h-auto rounded" />
